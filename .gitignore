@@ -1,0 +1,15 @@
+node_modules/
+dist/
+.astro/
+.packs/
+
+# Everything below is synced in from a brand repo at build time — it is that repo's
+# content, not this engine's, and committing it here would create a second copy to drift.
+src/content/docs/
+src/brand/
+src/styles/tokens.css
+public/assets/
+public/.htaccess
+public/downloads/
+
+.DS_Store

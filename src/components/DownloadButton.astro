@@ -1,0 +1,47 @@
+---
+interface Props {
+  href: string;
+  label: string;
+  /** Adds the target/rel pair and an outbound arrow. */
+  external?: boolean;
+  /** Byte size, rendered as a human-readable hint so nobody is surprised by an 11 MB PDF. */
+  bytes?: number;
+}
+const { href, label, external = false, bytes } = Astro.props;
+
+const readableSize = (n: number) =>
+  n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${Math.round(n / 1024)} KB`;
+---
+
+<a
+  class="download-button"
+  href={href}
+  download={external ? undefined : ""}
+  target={external ? "_blank" : undefined}
+  rel={external ? "noopener noreferrer" : undefined}
+>
+  {label}
+  {bytes ? <span class="download-size">{readableSize(bytes)}</span> : null}
+  {external ? <span aria-hidden="true">↗</span> : null}
+</a>
+
+<style>
+  .download-button {
+    display: inline-flex;
+    align-items: baseline;
+    gap: 0.4rem;
+    padding: 0.4rem 0.8rem;
+    margin: 0.15rem 0.3rem 0.15rem 0;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: var(--radius-sm, 3px);
+    background: var(--sl-color-gray-6);
+    color: var(--sl-color-white);
+    font-size: 0.85rem;
+    text-decoration: none;
+  }
+  .download-button:hover {
+    border-color: var(--brand-primary, var(--sl-color-accent));
+    background: var(--sl-color-gray-5);
+  }
+  .download-size { color: var(--sl-color-gray-3); font-size: 0.75rem; }
+</style>

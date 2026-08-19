@@ -1,0 +1,20 @@
+{
+  "name": "brand-starlight",
+  "version": "1.0.0",
+  "description": "Generic Astro Starlight engine for brand hubs. Contains no brand values \u2014 content, tokens and configuration are synced in from a brand repository.",
+  "license": "UNLICENSED",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sync": "node scripts/sync-brand.mjs",
+    "dev": "npm run sync && astro dev",
+    "build": "npm run sync && npm run packs && astro build",
+    "preview": "astro preview",
+    "packs": "node scripts/build-packs.mjs"
+  },
+  "dependencies": {
+    "@astrojs/mdx": "^7.0.7",
+    "@astrojs/starlight": "^0.41.7",
+    "astro": "^7.2.4"
+  }
+}

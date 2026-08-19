@@ -1,0 +1,83 @@
+---
+import tokens from "../brand/tokens.json";
+
+/**
+ * A live specimen of a typeface at the brand's own type scale.
+ *
+ * Sizes and weights come from tokens, so the specimen always shows what the brand
+ * actually specifies rather than a designer's approximation of it.
+ */
+interface Props {
+  /** Defaults to the brand's primary family. Pass a single name to preview a fallback. */
+  family?: string;
+  heading?: string;
+  note?: string;
+  sample?: string;
+}
+
+const primary = (tokens.font.family.primary as string[]).map((f) => (f.includes(" ") ? `'${f}'` : f)).join(", ");
+const { family, heading, note, sample = "Inspectas Compliance is a multi-disciplinary property compliance consultancy providing fully accredited surveyor services across the UK." } = Astro.props;
+
+const stack = family ? `'${family}', sans-serif` : primary;
+
+const levels = [
+  { key: "h1", label: "Heading One" },
+  { key: "h2", label: "Heading Two" },
+  { key: "h3", label: "Heading Three" },
+] as const;
+
+const weightName = (weight: number) =>
+  ({ 400: "Regular", 500: "Medium", 600: "Semi-Bold", 700: "Bold" })[weight] ?? String(weight);
+
+const text = tokens.text as Record<string, { fontSize: string; fontWeight: number; lineHeight: number }>;
+---
+
+{heading && <h3>{heading}</h3>}
+{note && <p class="specimen-note">{note}</p>}
+
+<div class="specimen" style={`font-family:${stack}`}>
+  {
+    levels.map(({ key, label }) => (
+      <p
+        style={`font-size:${text[key]!.fontSize};font-weight:${text[key]!.fontWeight};line-height:${text[key]!.lineHeight}`}
+      >
+        {label} — {weightName(text[key]!.fontWeight)} {text[key]!.fontWeight}
+      </p>
+    ))
+  }
+  <p
+    style={`font-size:${text.body!.fontSize};font-weight:${text.body!.fontWeight};line-height:${text.body!.lineHeight}`}
+  >
+    {sample}
+  </p>
+  <p
+    class="specimen-caption"
+    style={`font-size:${text.caption!.fontSize};font-weight:${text.caption!.fontWeight};line-height:${text.caption!.lineHeight}`}
+  >
+    Caption text — labels, footnotes and supporting information.
+  </p>
+
+  <div class="specimen-glyphs">
+    <p>A B C D E F G H I J K L M N O P Q R S T U V W X Y Z</p>
+    <p>a b c d e f g h i j k l m n o p q r s t u v w x y z</p>
+    <p>0 1 2 3 4 5 6 7 8 9 ! @ £ &amp; ? %</p>
+  </div>
+</div>
+
+<style>
+  .specimen-note { color: var(--sl-color-gray-3); font-size: 0.9rem; margin-bottom: 0.5rem; }
+  .specimen {
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: var(--radius-md, 8px);
+    padding: 1.75rem;
+    margin-block: 1rem 2rem;
+  }
+  .specimen p { margin: 0 0 0.4rem; }
+  .specimen-caption { color: var(--sl-color-gray-3); }
+  .specimen-glyphs {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 1px solid var(--sl-color-gray-5);
+  }
+  .specimen-glyphs p { font-size: 1.4rem; letter-spacing: 1px; margin-bottom: 0.3rem; }
+</style>

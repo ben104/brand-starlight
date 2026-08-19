@@ -1,0 +1,45 @@
+---
+import brand from "../brand/brand.config.json";
+
+/** The division websites, from brand.config.json. Divisions without a public site are omitted. */
+const divisions = brand.divisions.filter((d: any) => d.url);
+---
+
+<div class="site-cards">
+  {
+    divisions.map((division: any) => (
+      <a class="site-card" href={division.url} target="_blank" rel="noopener noreferrer" data-division={division.slug}>
+        {division.thumbnail && (
+          <img src={division.thumbnail} alt={`${division.name} website`} loading="lazy" />
+        )}
+        <div class="site-card-body">
+          <strong>{division.name}</strong>
+          <span>{division.description}</span>
+        </div>
+      </a>
+    ))
+  }
+</div>
+
+<style>
+  .site-cards {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: 1.25rem;
+    margin-block: 1.5rem;
+  }
+  .site-card {
+    display: block;
+    border: 1px solid var(--sl-color-gray-5);
+    border-top: 3px solid var(--brand-primary, var(--sl-color-accent));
+    border-radius: var(--radius-md, 8px);
+    overflow: hidden;
+    text-decoration: none;
+    color: inherit;
+    transition: border-color 0.15s;
+  }
+  .site-card:hover { border-color: var(--brand-primary, var(--sl-color-accent)); }
+  .site-card img { display: block; width: 100%; height: auto; }
+  .site-card-body { display: flex; flex-direction: column; gap: 0.35rem; padding: 0.9rem; }
+  .site-card-body span { font-size: 0.82rem; color: var(--sl-color-gray-3); line-height: 1.45; }
+</style>

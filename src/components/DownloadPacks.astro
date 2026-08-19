@@ -1,0 +1,49 @@
+---
+import DownloadButton from "./DownloadButton.astro";
+import fs from "node:fs";
+import path from "node:path";
+
+/**
+ * The AI context packs, built by scripts/build-packs.mjs during the site build.
+ *
+ * Sizes are read from disk at build time rather than written down, so the page can't claim
+ * a pack is 40 KB when it has grown to 400 KB.
+ */
+const PACKS = [
+  { file: "brand-hub-complete.md", label: "Complete Markdown", note: "Every guideline in a single file. Best for pasting into a chat." },
+  { file: "brand-docs.zip", label: "Docs Pack", note: "All markdown in structured folders. Best for Claude Projects and AI coding tools." },
+  { file: "brand-context.zip", label: "Full Context Pack", note: "Docs plus every brand asset. Only needed if your tool can't reach the web." },
+];
+
+const downloadsDir = path.join(process.cwd(), "public", "downloads");
+
+const packs = PACKS.map((pack) => {
+  const full = path.join(downloadsDir, pack.file);
+  return fs.existsSync(full) ? { ...pack, bytes: fs.statSync(full).size } : null;
+}).filter(Boolean) as Array<(typeof PACKS)[number] & { bytes: number }>;
+---
+
+{
+  packs.length ? (
+    <div class="packs">
+      {packs.map((pack) => (
+        <div class="pack">
+          <DownloadButton href={`/downloads/${pack.file}`} label={pack.label} bytes={pack.bytes} />
+          <span>{pack.note}</span>
+        </div>
+      ))}
+    </div>
+  ) : (
+    <p class="packs-missing">
+      The download packs are generated when the site is published. They will appear here on
+      the live site.
+    </p>
+  )
+}
+
+<style>
+  .packs { display: flex; flex-direction: column; gap: 0.75rem; margin-block: 1.25rem; }
+  .pack { display: flex; flex-direction: column; gap: 0.15rem; }
+  .pack span { font-size: 0.8rem; color: var(--sl-color-gray-3); }
+  .packs-missing { font-size: 0.9rem; color: var(--sl-color-gray-3); }
+</style>

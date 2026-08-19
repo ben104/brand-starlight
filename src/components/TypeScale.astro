@@ -1,0 +1,36 @@
+---
+import tokens from "../brand/tokens.json";
+
+/** The type scale as a table, read from tokens rather than typed out. */
+const rows = [
+  { key: "h1", element: "H1", usage: "Page titles, hero text" },
+  { key: "h2", element: "H2", usage: "Section headers" },
+  { key: "h3", element: "H3", usage: "Sub-sections" },
+  { key: "body", element: "Body", usage: "Paragraphs, general content" },
+  { key: "caption", element: "Caption", usage: "Labels, footnotes" },
+] as const;
+
+const weightName = (weight: number) =>
+  ({ 400: "Regular", 500: "Medium", 600: "Semi-Bold", 700: "Bold" })[weight] ?? String(weight);
+
+const text = tokens.text as Record<string, { fontSize: string; fontWeight: number; lineHeight: number }>;
+---
+
+<table>
+  <thead>
+    <tr><th>Element</th><th>Size</th><th>Weight</th><th>Line height</th><th>Usage</th></tr>
+  </thead>
+  <tbody>
+    {
+      rows.map((row) => (
+        <tr>
+          <td><strong>{row.element}</strong></td>
+          <td><code>{text[row.key]!.fontSize}</code></td>
+          <td>{weightName(text[row.key]!.fontWeight)} ({text[row.key]!.fontWeight})</td>
+          <td>{text[row.key]!.lineHeight}</td>
+          <td>{row.usage}</td>
+        </tr>
+      ))
+    }
+  </tbody>
+</table>

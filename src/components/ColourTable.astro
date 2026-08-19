@@ -1,0 +1,137 @@
+---
+import tokens from "../brand/tokens.json";
+
+/**
+ * Renders the palette from the brand's design tokens.
+ *
+ * Deliberately has no colour values of its own — if this component and the token file
+ * ever disagreed, the page would be lying about the brand.
+ */
+interface Props {
+  /** "core" for the shared neutrals, "divisions" for the per-division three-tone sets. */
+  set?: "core" | "divisions";
+}
+const { set = "core" } = Astro.props;
+
+const hexToRgb = (hex: string) => {
+  const n = parseInt(hex.replace("#", ""), 16);
+  return [(n >> 16) & 255, (n >> 8) & 255, n & 255];
+};
+
+/** WCAG relative luminance, used to decide whether a swatch needs light or dark text. */
+const luminance = (hex: string) => {
+  const [r, g, b] = hexToRgb(hex).map((c) => {
+    const s = c / 255;
+    return s <= 0.03928 ? s / 12.92 : ((s + 0.055) / 1.055) ** 2.4;
+  });
+  return 0.2126 * r! + 0.7152 * g! + 0.0722 * b!;
+};
+
+const contrast = (a: string, b: string) => {
+  const [l1, l2] = [luminance(a), luminance(b)].sort((x, y) => y - x);
+  return (l1! + 0.05) / (l2! + 0.05);
+};
+
+const label = (s: string) => s.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+
+type Swatch = { name: string; hex: string; note?: string };
+type Group = { heading: string; note?: string; swatches: Swatch[] };
+
+let groups: Group[];
+
+if (set === "core") {
+  groups = [
+    {
+      heading: "Core",
+      swatches: Object.entries(tokens.color.core).map(([name, hex]) => ({
+        name: label(name),
+        hex: hex as string,
+      })),
+    },
+    {
+      heading: "Hue ramps",
+      note: "The raw hues the divisions are built from. Use a division colour in preference to these — the ramps exist so two divisions can share a hue without it being written down twice.",
+      swatches: Object.entries(tokens.color.ramp).flatMap(([hue, tones]) =>
+        Object.entries(tones as Record<string, string>).map(([tone, hex]) => ({
+          name: `${label(hue)} ${tone}`,
+          hex,
+        }))
+      ),
+    },
+  ];
+} else {
+  groups = Object.entries(tokens.color.division).map(([slug, tones]) => ({
+    heading: label(slug),
+    swatches: Object.entries(tones as Record<string, string>).map(([tone, hex]) => ({
+      name: label(tone),
+      hex,
+    })),
+  }));
+}
+---
+
+{
+  groups.map((group) => (
+    <section class="colour-group">
+      <h3>{group.heading}</h3>
+      {group.note && <p class="colour-note">{group.note}</p>}
+      <div class="colour-grid">
+        {group.swatches.map((swatch) => {
+          const onWhite = contrast(swatch.hex, "#FFFFFF");
+          const onBlack = contrast(swatch.hex, "#000000");
+          const readable = onWhite > onBlack ? "#FFFFFF" : "#000000";
+          return (
+            <figure class="colour-swatch">
+              <div class="colour-chip" style={`background:${swatch.hex};color:${readable}`}>
+                <span>{swatch.hex}</span>
+              </div>
+              <figcaption>
+                <strong>{swatch.name}</strong>
+                <code>{swatch.hex}</code>
+                <span class="colour-rgb">rgb({hexToRgb(swatch.hex).join(", ")})</span>
+                <span class="colour-contrast">
+                  Text on this swatch: {onWhite > onBlack ? "white" : "black"}{" "}
+                  {Math.max(onWhite, onBlack).toFixed(1)}:1
+                  {Math.max(onWhite, onBlack) >= 4.5 ? " ✓ AA" : " ✗ large text only"}
+                </span>
+              </figcaption>
+            </figure>
+          );
+        })}
+      </div>
+    </section>
+  ))
+}
+
+<style>
+  .colour-group { margin-block: 2rem; }
+  .colour-note { color: var(--sl-color-gray-3); font-size: 0.9rem; }
+  .colour-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+    gap: 1rem;
+  }
+  .colour-swatch { margin: 0; }
+  .colour-chip {
+    display: flex;
+    align-items: flex-end;
+    justify-content: flex-end;
+    height: 84px;
+    padding: 0.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: var(--radius-md, 8px);
+    font-size: 0.75rem;
+    font-family: var(--sl-font-mono);
+  }
+  .colour-chip span { opacity: 0.85; }
+  figcaption {
+    display: flex;
+    flex-direction: column;
+    gap: 0.1rem;
+    margin-top: 0.5rem;
+    font-size: 0.8rem;
+    line-height: 1.4;
+  }
+  figcaption code { font-size: 0.78rem; background: none; padding: 0; }
+  .colour-rgb, .colour-contrast { color: var(--sl-color-gray-3); font-size: 0.72rem; }
+</style>

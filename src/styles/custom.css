@@ -1,0 +1,47 @@
+/*
+ * Maps the brand's design tokens onto Starlight's own theme variables.
+ *
+ * Everything here reads from a --color-* or --font-* custom property defined by the brand's
+ * token package. No brand value is written in this file — swapping the token package swaps
+ * the whole look.
+ */
+
+:root {
+  --sl-font: var(--font-family-primary, system-ui, sans-serif);
+
+  /* Starlight's accent ramp, driven by the brand's default division. */
+  --sl-color-accent-low: var(--brand-light);
+  --sl-color-accent: var(--brand-primary);
+  --sl-color-accent-high: var(--brand-dark);
+}
+
+/* Light theme: the brand's neutrals read better than Starlight's defaults. */
+:root[data-theme="light"] {
+  --sl-color-bg: var(--color-core-white);
+  --sl-color-bg-nav: var(--color-core-grey-light);
+  --sl-color-bg-sidebar: var(--color-core-grey-light);
+  --sl-color-text: var(--color-core-navy);
+  --sl-color-text-accent: var(--brand-dark);
+  --sl-color-hairline: var(--color-core-grey);
+}
+
+:root[data-theme="dark"] {
+  --sl-color-text-accent: var(--brand-primary);
+}
+
+/* Tables carry a lot of the brand guidance — give them room to breathe. */
+.sl-markdown-content table {
+  display: block;
+  overflow-x: auto;
+  font-size: 0.9rem;
+}
+
+.sl-markdown-content th {
+  white-space: nowrap;
+}
+
+/* The site logo is a wordmark, not an icon — the default 3rem cap crops it. */
+.site-title img {
+  max-height: 2.2rem;
+  width: auto;
+}
