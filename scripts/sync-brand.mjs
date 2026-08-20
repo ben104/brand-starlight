@@ -31,6 +31,14 @@ const configPath = path.join(BRAND, "brand.config.json");
 if (!fs.existsSync(configPath)) fail(`${BRAND} has no brand.config.json — is it a brand repo?`);
 const config = JSON.parse(fs.readFileSync(configPath, "utf8"));
 
+// The engine must not know a brand's folder names. The brand declares them; anything the
+// engine hardcodes stops it being reusable the moment a brand renames something.
+const assetFiles = config.paths?.assetFiles;
+const assetManifest = config.paths?.assetManifest;
+if (!assetFiles || !assetManifest) {
+  fail("brand.config.json needs paths.assetFiles and paths.assetManifest — the engine no longer assumes folder names.");
+}
+
 /* Tokens must be built before the site can be styled. Say so plainly rather than
    rendering an unstyled site and leaving someone to work out why. */
 const tokensCss = path.join(BRAND, "dist", "tokens.css");
@@ -106,7 +114,8 @@ const processPages = (dir) => {
 for (const section of config.sections) {
   const from = path.join(BRAND, section.dir);
   if (!fs.existsSync(from)) fail(`brand.config.json lists section "${section.dir}" but that folder doesn't exist.`);
-  // 03-assets/files holds the binaries; they go to public/, not into the docs collection.
+  // The assets section holds binaries alongside its pages; those go to public/, not into
+  // the docs collection.
   const to = path.join(DOCS, section.dir);
   copyDir(from, to);
   fs.rmSync(path.join(to, "files"), { recursive: true, force: true });
@@ -125,7 +134,7 @@ for (const entry of fs.readdirSync(BRAND, { withFileTypes: true })) {
 
 /* ---------- assets ---------- */
 fs.rmSync(PUBLIC_ASSETS, { recursive: true, force: true });
-copyDir(path.join(BRAND, "03-assets", "files"), PUBLIC_ASSETS);
+copyDir(path.join(BRAND, assetFiles), PUBLIC_ASSETS);
 
 /* ---------- server configuration ---------- */
 /* A brand may ship its own deploy/.htaccess — auth and caching are properties of how a
@@ -142,7 +151,7 @@ if (fs.existsSync(htaccess)) {
 /* ---------- data the components read ---------- */
 fs.mkdirSync(BRAND_DATA, { recursive: true });
 fs.copyFileSync(configPath, path.join(BRAND_DATA, "brand.config.json"));
-fs.copyFileSync(path.join(BRAND, "03-assets", "assets.json"), path.join(BRAND_DATA, "assets.json"));
+fs.copyFileSync(path.join(BRAND, assetManifest), path.join(BRAND_DATA, "assets.json"));
 fs.copyFileSync(path.join(BRAND, "dist", "tokens.json"), path.join(BRAND_DATA, "tokens.json"));
 fs.copyFileSync(tokensCss, path.join(ENGINE, "src", "styles", "tokens.css"));
 
