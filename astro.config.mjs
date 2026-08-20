@@ -55,6 +55,10 @@ export default defineConfig({
       editLink: {
         baseUrl: `https://github.com/${brand.repo.owner}/${brand.repo.name}/edit/${brand.repo.branch}/`,
       },
+      components: {
+        // Adds a "download as Markdown" link alongside Starlight's own footer.
+        Footer: "./src/components/Footer.astro",
+      },
       lastUpdated: true,
       sidebar,
       pagination: true,

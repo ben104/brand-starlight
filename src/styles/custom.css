@@ -61,8 +61,17 @@
   white-space: nowrap;
 }
 
-/* The site logo is a wordmark, not an icon — the default 3rem cap crops it. */
+/* The site logo is a wordmark, not an icon, so it needs more height than Starlight's
+   default to stay legible.
+   
+   This sets `height`, not `max-height`: Starlight applies its own `height` to the logo,
+   and a max-height can only cap that — it cannot enlarge it. Capping alone silently
+   limited the logo to Starlight's 2.5rem.
+   
+   The nav is 4rem tall, so 2.86rem leaves ~0.57rem of clearance in total. Going much
+   beyond this needs --sl-nav-height raised to match. */
 .site-title img {
-  max-height: 2.2rem;
+  height: 2.86rem;
+  max-height: none;
   width: auto;
 }
