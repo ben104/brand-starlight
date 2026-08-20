@@ -1,5 +1,6 @@
 ---
 import tokens from "../brand/tokens.json";
+import { label } from "../lib/label.mjs";
 
 /**
  * Renders the palette from the brand's design tokens.
@@ -31,8 +32,6 @@ const contrast = (a: string, b: string) => {
   const [l1, l2] = [luminance(a), luminance(b)].sort((x, y) => y - x);
   return (l1! + 0.05) / (l2! + 0.05);
 };
-
-const label = (s: string) => s.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
 type Swatch = { name: string; hex: string; note?: string };
 type Group = { heading: string; note?: string; swatches: Swatch[] };

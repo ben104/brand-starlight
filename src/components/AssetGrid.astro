@@ -1,6 +1,7 @@
 ---
 import assets from "../brand/assets.json";
 import DownloadButton from "./DownloadButton.astro";
+import { label } from "../lib/label.mjs";
 
 /**
  * Renders an asset catalogue from the brand's generated manifest.
@@ -13,7 +14,6 @@ interface Props {
 }
 const { kind } = Astro.props;
 
-const label = (s: string) => s.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 
 /** Preview a logo on a dark tile when the artwork itself is white. */
 const isKnockout = (variant: string) => variant === "white";

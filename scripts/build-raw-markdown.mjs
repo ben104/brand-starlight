@@ -21,7 +21,8 @@ const tokens = JSON.parse(fs.readFileSync(path.join(BRAND, "tokens.json"), "utf8
 const assets = JSON.parse(fs.readFileSync(path.join(BRAND, "assets.json"), "utf8"));
 const config = JSON.parse(fs.readFileSync(path.join(BRAND, "brand.config.json"), "utf8"));
 
-const label = (s) => s.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+const overrides = config.labels ?? {};
+const label = (s) => overrides[s] ?? String(s).replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 const kb = (n) => (n >= 1024 * 1024 ? `${(n / 1024 / 1024).toFixed(1)} MB` : `${Math.round(n / 1024)} KB`);
 
 /* ---------- component → markdown ---------- */
