@@ -98,7 +98,10 @@ if (failed.length) {
 }
 
 /* ---------- 4. prove the origin lock still works ---------- */
-const host = "brand.inspectasgroup.co.uk";
+// Read from the synced brand config rather than hardcoded — the engine must not carry
+// brand values, or it stops being reusable.
+const brandConfig = JSON.parse(fs.readFileSync(path.join(ENGINE, "src", "brand", "brand.config.json"), "utf8"));
+const host = new URL(brandConfig.site).host;
 const check = async (label, secret, expected) => {
   const res = await fetch(`https://${host}/`, {
     headers: secret === null ? {} : { "X-Origin-Secret": secret },
