@@ -58,6 +58,8 @@ export default defineConfig({
       components: {
         // Adds a "download as Markdown" link alongside Starlight's own footer.
         Footer: "./src/components/Footer.astro",
+        // Strips the sync path from the edit URL — see the component for why.
+        EditLink: "./src/components/EditLink.astro",
       },
       lastUpdated: true,
       sidebar,

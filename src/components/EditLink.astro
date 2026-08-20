@@ -1,0 +1,41 @@
+---
+import { Icon } from "@astrojs/starlight/components";
+
+/**
+ * Starlight's edit link, with the sync path removed.
+ *
+ * Starlight builds the URL from the file's path relative to THIS project, which is
+ * `src/content/docs/<page>` — but the file being edited lives at `<page>` in the brand
+ * repository. That prefix is an artefact of the sync, so the default link 404s on GitHub.
+ *
+ * Stripping it is the whole fix. Everything else matches Starlight's own markup so the
+ * link keeps its styling and icon.
+ */
+const { editUrl } = Astro.locals.starlightRoute;
+
+const SYNC_PREFIX = "/src/content/docs/";
+const href = editUrl ? String(editUrl).replace(SYNC_PREFIX, "/") : undefined;
+---
+
+{
+  href && (
+    <a href={href} class="sl-flex print:hidden">
+      <Icon name="pencil" size="1.2em" />
+      {Astro.locals.t("page.editLink")}
+    </a>
+  )
+}
+
+<style>
+  @layer starlight.core {
+    a {
+      gap: 0.5rem;
+      align-items: center;
+      text-decoration: none;
+      color: var(--sl-color-gray-3);
+    }
+    a:hover {
+      color: var(--sl-color-white);
+    }
+  }
+</style>
