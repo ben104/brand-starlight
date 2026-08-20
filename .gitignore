@@ -3,6 +3,9 @@ dist/
 .astro/
 .packs/
 
+# Deploy artefact — built from dist/, never committed.
+site.zip
+
 # Everything below is synced in from a brand repo at build time — it is that repo's
 # content, not this engine's, and committing it here would create a second copy to drift.
 src/content/docs/

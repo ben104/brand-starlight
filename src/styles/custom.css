@@ -8,25 +8,46 @@
 
 :root {
   --sl-font: var(--font-family-primary, system-ui, sans-serif);
-
-  /* Starlight's accent ramp, driven by the brand's default division. */
-  --sl-color-accent-low: var(--brand-light);
-  --sl-color-accent: var(--brand-primary);
-  --sl-color-accent-high: var(--brand-dark);
 }
 
-/* Light theme: the brand's neutrals read better than Starlight's defaults. */
+/*
+ * Starlight's accent ramp is theme-dependent, and the direction REVERSES:
+ * in dark mode `accent-high` is the light end (used for text on a dark background), while
+ * in light mode it is the dark end. Mapping it once for both themes puts near-black text
+ * on a near-black background — which is exactly what happened the first time.
+ *
+ * So each theme gets the brand tone that actually contrasts with its own background:
+ *
+ *            low (surface)      accent (mid)     high (text)
+ *   dark     brand-primary      brand-dark       brand-light
+ *   light    brand-light        brand-dark       brand-primary
+ *
+ * These read from --brand-*, so the whole ramp still rethemes per division: inside
+ * [data-division="fire-safety"] the accents become the fire palette automatically.
+ */
+
+/* Dark is Starlight's default, so it also serves as the fallback before the theme script
+   stamps data-theme onto the root element. */
+:root,
+:root[data-theme="dark"] {
+  --sl-color-accent-low: var(--brand-primary);
+  --sl-color-accent: var(--brand-dark);
+  --sl-color-accent-high: var(--brand-light);
+  --sl-color-text-accent: var(--brand-light);
+}
+
 :root[data-theme="light"] {
+  --sl-color-accent-low: var(--brand-light);
+  --sl-color-accent: var(--brand-dark);
+  --sl-color-accent-high: var(--brand-primary);
+  --sl-color-text-accent: var(--brand-primary);
+
+  /* The brand's neutrals read better here than Starlight's defaults. */
   --sl-color-bg: var(--color-core-white);
   --sl-color-bg-nav: var(--color-core-grey-light);
   --sl-color-bg-sidebar: var(--color-core-grey-light);
   --sl-color-text: var(--color-core-navy);
-  --sl-color-text-accent: var(--brand-dark);
   --sl-color-hairline: var(--color-core-grey);
-}
-
-:root[data-theme="dark"] {
-  --sl-color-text-accent: var(--brand-primary);
 }
 
 /* Tables carry a lot of the brand guidance — give them room to breathe. */
