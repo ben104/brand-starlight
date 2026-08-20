@@ -53,7 +53,6 @@ const COMPONENTS = [
   "AssetGrid",
   "DownloadButton",
   "SiteCards",
-  "DownloadPacks",
 ];
 
 const injectImports = (file) => {

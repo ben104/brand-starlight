@@ -8,9 +8,8 @@
   "scripts": {
     "sync": "node scripts/sync-brand.mjs",
     "dev": "npm run sync && astro dev",
-    "build": "npm run sync && npm run packs && npm run raw && astro build",
+    "build": "npm run sync && npm run raw && astro build",
     "preview": "astro preview",
-    "packs": "node scripts/build-packs.mjs",
     "raw": "node scripts/build-raw-markdown.mjs"
   },
   "dependencies": {

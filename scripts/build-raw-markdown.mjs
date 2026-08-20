@@ -91,18 +91,12 @@ const assetGrid = (attrs) => {
 const siteCards = () =>
   config.divisions.filter((d) => d.url).map((d) => `- **[${d.name}](${d.url})** — ${d.description}`).join("\n");
 
-const downloadPacks = () =>
-  ["- [Complete Markdown](/downloads/brand-hub-complete.md) — every guideline in one file",
-   "- [Docs Pack](/downloads/brand-docs.zip) — all markdown in folders",
-   "- [Full Context Pack](/downloads/brand-context.zip) — docs plus every asset"].join("\n");
-
 const RENDERERS = {
   ColourTable: colourTable,
   TypeScale: typeScale,
   TypeSpecimen: typeSpecimen,
   AssetGrid: assetGrid,
   SiteCards: siteCards,
-  DownloadPacks: downloadPacks,
   DownloadButton: (attrs) => {
     const href = attrs.match(/href=["']([^"']+)["']/)?.[1] ?? "";
     const text = attrs.match(/label=["']([^"']+)["']/)?.[1] ?? "Download";

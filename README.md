@@ -25,13 +25,13 @@ cd ../inspectas-brand && npm install && npm run build
 
 ```bash
 npm run sync    # copy a brand's content, assets, tokens and config into the engine
-npm run packs   # build the downloadable AI context packs into public/downloads/
-npm run build   # sync → packs → astro build
+npm run raw     # generate the per-page Markdown downloads into public/raw/
+npm run build   # sync → raw → astro build
 npm run dev     # sync, then a dev server
 ```
 
-`packs` must run **before** `astro build` — Astro copies `public/` into `dist/` as part of
-the build, so packs generated afterwards never reach the published site. `npm run build`
+`raw` must run **before** `astro build` — Astro copies `public/` into `dist/` as part of the
+build, so anything generated afterwards never reaches the published site. `npm run build`
 already orders it correctly.
 
 ## What the engine expects from a brand repo
@@ -60,7 +60,6 @@ every page is one more thing for them to break.
 | `<AssetGrid kind="logos\|favicons\|illustrations\|imagery\|accreditations" />` | Asset catalogue from the manifest |
 | `<DownloadButton href label bytes external />` | A download link with a human-readable size |
 | `<SiteCards />` | The division websites from `brand.config.json` |
-| `<DownloadPacks />` | The AI context packs, sized from disk at build time |
 
 To add a component, create it in `src/components/` and add its name to `COMPONENTS` in
 `scripts/sync-brand.mjs`.

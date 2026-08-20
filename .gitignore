@@ -13,7 +13,6 @@ src/brand/
 src/styles/tokens.css
 public/assets/
 public/.htaccess
-public/downloads/
 public/raw/
 
 .DS_Store
