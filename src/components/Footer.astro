@@ -3,17 +3,20 @@ import Default from "@astrojs/starlight/components/Footer.astro";
 import brand from "../brand/brand.config.json";
 
 /**
- * Starlight's footer, plus two page actions.
+ * Starlight's footer, plus the page actions.
  *
- * There is deliberately no "Edit page" link. Editing requires write access to the brand
- * repository, which almost nobody viewing this site has — so the default link sent most
- * readers to a GitHub 404, which reads as the site being broken rather than as a
- * permission they lack. The few people who do have access know where the repository is,
- * and CONTRIBUTING.md documents the flow.
+ * There is deliberately no "Edit page" link: editing needs repository write access, which
+ * almost nobody viewing this site has, so the default link sent most readers to a GitHub
+ * 404.
  *
- * What replaces it is a change request that arrives with context: the page title and URL
- * are pre-filled, so the brand manager gets "Brand Colours — https://…/colours/" instead
- * of "something on the site is wrong".
+ * There is also deliberately no mailto: link. A mailto fails *silently* on any machine
+ * without a registered mail handler — which is common on desktop Chrome with webmail — and
+ * a button that does nothing at all when clicked is worse than no button. The address is
+ * shown as plain selectable text instead, so it works everywhere.
+ *
+ * The page title goes in the text so a request still arrives identifiable: "Brand Colours"
+ * rather than "something on the site is wrong". That context was the reason for the
+ * pre-filled mailto, and it is worth keeping without it.
  */
 const { entry } = Astro.locals.starlightRoute;
 
@@ -22,29 +25,19 @@ const rawHref = `/raw/${slug}.md`;
 const filename = `${slug.split("/").pop() || "page"}.md`;
 
 const title = entry.data?.title ?? slug;
-const pageUrl = new URL(slug === "index" ? "/" : `/${slug}/`, brand.site).href;
-
 const changesTo = brand.contact?.changes;
-const suggestHref = changesTo
-  ? `mailto:${changesTo}?subject=${encodeURIComponent(`${brand.siteTitle}: ${title}`)}&body=${encodeURIComponent(
-      `Page: ${pageUrl}\n\nWhat needs changing:\n\n`
-    )}`
-  : undefined;
 ---
 
 <div class="page-actions">
   {
-    suggestHref && (
-      <a href={suggestHref}>
-        <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z" />
-          <polyline points="22,6 12,13 2,6" />
-        </svg>
-        Suggest a change
-      </a>
+    changesTo && (
+      <p class="suggest">
+        Something wrong on this page? Email <strong>{changesTo}</strong> and mention
+        &ldquo;{title}&rdquo;.
+      </p>
     )
   }
-  <a href={rawHref} download={filename}>
+  <a class="download" href={rawHref} download={filename}>
     <svg aria-hidden="true" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
       <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
       <polyline points="7 10 12 15 17 10"></polyline>
@@ -60,11 +53,23 @@ const suggestHref = changesTo
   .page-actions {
     display: flex;
     flex-wrap: wrap;
-    justify-content: flex-end;
-    gap: 0.5rem;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
     margin-block: 1.5rem 0;
   }
-  .page-actions a {
+  .suggest {
+    margin: 0;
+    font-size: var(--sl-text-sm);
+    color: var(--sl-color-gray-3);
+  }
+  .suggest strong {
+    color: var(--sl-color-white);
+    font-weight: 600;
+    /* The address has to be selectable — copying it is how most people will use it. */
+    user-select: all;
+  }
+  .download {
     display: inline-flex;
     align-items: center;
     gap: 0.45rem;
@@ -74,8 +79,9 @@ const suggestHref = changesTo
     font-size: var(--sl-text-sm);
     color: var(--sl-color-gray-2);
     text-decoration: none;
+    white-space: nowrap;
   }
-  .page-actions a:hover {
+  .download:hover {
     color: var(--sl-color-white);
     border-color: var(--sl-color-gray-4);
     background: var(--sl-color-gray-6);
