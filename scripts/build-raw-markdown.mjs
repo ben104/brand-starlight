@@ -106,10 +106,23 @@ const RENDERERS = {
 
 /* ---------- per page ---------- */
 
-const convert = (raw, relPath) => {
+/**
+ * The route Starlight will serve a file at, which is not the same as the file's path:
+ * a trailing /index is dropped, so templates/index.md is served at /templates/.
+ *
+ * The footer's "Download this page as Markdown" link is built from that route, so the raw
+ * file has to be named for the route too — /raw/templates.md, not /raw/templates/index.md.
+ * Naming it after the file gave every section index page a 404 on that link.
+ *
+ * The site root is the one page that keeps the name: it has no directory to be named after.
+ */
+const routeSlug = (relPath) =>
+  relPath.replace(/\.mdx?$/, "").replace(/(^|\/)index$/, "") || "index";
+
+const convert = (raw, slug) => {
   const fm = raw.match(/^---\n([\s\S]*?)\n---\n/);
   const front = fm?.[1] ?? "";
-  const title = front.match(/^title:\s*(.+)$/m)?.[1].replace(/^["']|["']$/g, "") ?? path.basename(relPath);
+  const title = front.match(/^title:\s*(.+)$/m)?.[1].replace(/^["']|["']$/g, "") ?? path.basename(slug);
   const description = front.match(/^description:\s*(.+)$/m)?.[1].replace(/^["']|["']$/g, "") ?? "";
 
   let body = fm ? raw.slice(fm[0].length) : raw;
@@ -123,8 +136,10 @@ const convert = (raw, relPath) => {
 
   body = body.replace(/\n{3,}/g, "\n\n").trim();
 
+  const url = slug === "index" ? `${config.site}/` : `${config.site}/${slug}/`;
+
   return `# ${title}\n\n${description ? `> ${description}\n\n` : ""}` +
-    `_From the ${config.name} brand hub — ${config.site}/${relPath.replace(/\.mdx?$/, "")}/_\n\n---\n\n${body}\n`;
+    `_From the ${config.name} brand hub — ${url}_\n\n---\n\n${body}\n`;
 };
 
 /* ---------- walk ---------- */
@@ -139,10 +154,11 @@ const walk = (dir) => {
     if (!/\.mdx?$/.test(e.name)) continue;
 
     const rel = path.relative(DOCS, full);
+    const slug = routeSlug(rel);
     const raw = fs.readFileSync(full, "utf8");
-    const out = path.join(OUT, rel.replace(/\.mdx$/, ".md"));
+    const out = path.join(OUT, `${slug}.md`);
     fs.mkdirSync(path.dirname(out), { recursive: true });
-    fs.writeFileSync(out, convert(raw, rel));
+    fs.writeFileSync(out, convert(raw, slug));
     count++;
   }
 };
