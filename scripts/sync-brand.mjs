@@ -112,6 +112,20 @@ const processPages = (dir) => {
 };
 
 for (const section of config.sections) {
+  /* A section is either a folder to autogenerate from, or a single standalone page that
+     lives at the brand repo's root. Root pages are copied by the loop below this one, so
+     a link section needs checking here but nothing copying. */
+  if (!section.dir) {
+    if (!section.link) {
+      fail(`brand.config.json has a section with neither "dir" nor "link": ${JSON.stringify(section)}`);
+    }
+    const page = ["md", "mdx"].map((ext) => path.join(BRAND, `${section.link}.${ext}`)).find((f) => fs.existsSync(f));
+    if (!page) {
+      fail(`brand.config.json links section "${section.link}" but there is no ${section.link}.md or .mdx at the root of the brand repo.`);
+    }
+    continue;
+  }
+
   const from = path.join(BRAND, section.dir);
   if (!fs.existsSync(from)) fail(`brand.config.json lists section "${section.dir}" but that folder doesn't exist.`);
   // The assets section holds binaries alongside its pages; those go to public/, not into
