@@ -10,7 +10,7 @@ import { label } from "../lib/label.mjs";
  * manifest puts it on the page — there is no markdown table to forget to update.
  */
 interface Props {
-  kind: "logos" | "favicons" | "illustrations" | "imagery" | "accreditations";
+  kind: "logos" | "favicons" | "illustrations" | "imagery" | "accreditations" | "document";
 }
 const { kind } = Astro.props;
 
@@ -93,13 +93,29 @@ const isKnockout = (variant: string) => variant === "white";
 }
 
 {
-  (kind === "imagery" || kind === "accreditations") &&
+  (kind === "imagery" || kind === "accreditations" || kind === "document") &&
     (assets as any)[kind].map((group: any) => (
       <section class="asset-brand">
         <h3>{group.heading}</h3>
-        <div class="asset-grid">
+        <div
+          class:list={[
+            "asset-grid",
+            kind === "document" && "asset-grid--wide",
+            /* A 10:1 strip shrunk into a square-ish tile is unreadable. Groups of them get
+               one per row so the artwork uses the full content width. */
+            group.items[0]?.layout === "strip" && "asset-grid--strips",
+          ]}
+        >
           {group.items.map((item: any) => (
-            <figure class="asset-card">
+            /* Document artwork is transparent where the navy page shows through, so it
+               only reads on navy. Previewing it on white shows holes that aren't there. */
+            <figure
+              class:list={[
+                "asset-card",
+                item.preview === "navy" && "asset-card--dark",
+                item.layout === "strip" && "asset-card--strip",
+              ]}
+            >
               <div class="asset-preview">
                 <img src={item.url} alt={item.name} loading="lazy" />
               </div>
@@ -126,6 +142,14 @@ const isKnockout = (variant: string) => variant === "white";
     gap: 1.25rem;
   }
   .asset-grid--small { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); }
+  /* Cover artwork is square and accreditation strips are very wide — both need more
+     room than a logo tile to be worth looking at. */
+  .asset-grid--wide { grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); }
+  .asset-grid--wide .asset-preview { min-height: 200px; }
+  .asset-grid--wide .asset-preview img { max-height: 190px; }
+  .asset-grid--strips { grid-template-columns: 1fr; }
+  .asset-grid--strips .asset-preview { min-height: 0; padding: 1.25rem 1rem; }
+  .asset-grid--strips .asset-preview img { width: 100%; max-height: none; }
   .asset-card {
     margin: 0;
     border: 1px solid var(--sl-color-gray-5);
